@@ -29,6 +29,40 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     return ['+', '-', '×', '÷'].contains(value[value.length - 1]);
   }
 
+  // Tugmalar bosilgandagi harakatlar
+  void buttonPressed(String value) {
+    setState(() {
+      // Kiritmalarni tozalash
+      if (value == 'AC') {
+        input = '';
+        return;
+      }
+
+      // Ifodani hisoblash
+      if (value == '=') {
+        if (input.isEmpty || _isLastCharOperator(input)) {
+          input = input.isEmpty ? '0' : 'Xato';
+        } else {
+          try {
+            input = _evaluateExpression(input);
+          } catch (e) {
+            input = 'Xato';
+          }
+        }
+        return;
+      }
+
+      // Ketma-ket operatorlarni oldini olish
+      if (['+', '-', '×', '÷'].contains(value)) {
+        if (input.isEmpty || _isLastCharOperator(input)) {
+          return; // Agar kiritma bo'sh bo'lsa yoki oxirgi belgi operator bo'lsa, hech narsa qilmaydi
+        }
+      }
+
+      // Qiymatni qo'shish
+      input += value;
+    });
+  }
 
   String _evaluateExpression(String expression) {
     try {
@@ -90,7 +124,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                         Expanded(
                           flex: 1,
                           child: GestureDetector(
-                            onTap: () => ('='),
+                            onTap: () => buttonPressed('='),
                             child: Padding(
                               padding: const EdgeInsets.only(
                                   left: 8, bottom: 4, right: 8),
@@ -139,7 +173,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                 child: value.isEmpty
                     ? SizedBox.shrink()
                     : ElevatedButton(
-                  onPressed: () => (value),
+                  onPressed: () => buttonPressed(value),
                   style: ElevatedButton.styleFrom(
                     backgroundColor:
                     value == 'AC' ? Colors.red : Colors.white,
